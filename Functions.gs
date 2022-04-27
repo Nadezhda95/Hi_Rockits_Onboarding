@@ -1,8 +1,8 @@
-function searchMessage(msgData) {
-  const messagesArr = messagesSheet.getRange(1,1,messagesSheet.getLastRow(),messagesSheet.getLastColumn()).getValues();
+function searchMessage(text, messagesArr) {
+  messagesArr = (typeof messagesArr !== 'undefined') ? messagesArr : messagesSheet.getRange(1,1,messagesSheet.getLastRow(),messagesSheet.getLastColumn()).getValues();
 
-  messagesArr.map((el) => {
-    if (el[1] === msgData.text) {
+  const finalArr = messagesArr.map((el) => {
+    if (el[1] === text) {
       if (el[2]) {
         return `${el[2]}\n${el[3]}`
       } else {
@@ -11,50 +11,39 @@ function searchMessage(msgData) {
     }
   })
   .filter(Boolean)
-  .forEach((el) => Telegram.send(el,msgData.chatId,API));
+
+  return finalArr
 }
-
-
-/*function sendMessages(msgArr,flag) {
-  if (flag === 'key') {
-    Telegram.send_key(msg,msgData.chatId,API,Keyboard_check);
-  } else {
-    Telegram.send(msg,msgData.chatId,API);
-  }
-}*/
 
 
 function userAuth(msgData) {
-  const authDataSheet_arr = authDataSheet.getRange(2,1,authDataSheet.getLastRow(),authDataSheet.getLastColumn()).getValues().flat();
-
-  return authDataSheet_arr.includes(msgData.userName)
-}
-
-/**
- * The function returns an index of the key in the sheet's column
- * 
- * @param  {number} key The key for searching
- * @param  {SpreadsheetApp.Sheet} sheet The variable containing link to the sheet
- * @param  {number} col The number of the column for searching
- * @return {number} ind of the key in the table if table includes a header or index of position in the array
- */
-function getIndex(key,sheet,col) {
-
-  let lr = sheet.getLastRow();
-  let chatId_arr = sheet.getRange(1,col,lr).getValues();
-  chatId_arr = chatId_arr.flat();
-  let ind = chatId_arr.indexOf(key);
+  const dictSheet_arr = dictSheet.getRange(1,numColLoginDict,dictSheet.getLastRow(),1).getValues().flat();
+  const userName = `@${msgData.user_name}`;
+  const ind = dictSheet_arr.indexOf(userName);
+  if (ind > -1 && dictSheet_arr[ind][numColChatIDDict-1] === ``) dictSheet.getRange(ind+1,numColChatIDDict).setValue(msgData.chatId);
   
-  return ind;
+  return ind 
 }
 
-function sendReminder(reminderCol,msgData) {
-  const actionList = adaptationSheet.getRange(2,reminderCol,adaptationSheet.getLastRow()-1,1).getValues().flat();
-  actionList.forEach((el) => Telegram.send_key(el,msgData.chatId,API,Keyboard_check))
+function sendReminder() {
+  const reminderList = dictSheet.getRange(2,numColMonthsDict,dictSheet.getLastRow()-1,3).getValues();
+  reminderList.map((el) => {
+    if (el[1] <= 3 && el[0] >=1 && el[0] <= 3 && el[2] !== '') {// счетчик отправок < 3, количество месяцев в компании от 1 до 3, заполнен чат ид
+      el[1] += 1;
+      Telegram.send(`Проверь свои задачи на каждый месяц работы: Моя адаптация -> Задачи на каждый месяц работы`, el[2], API);
+    }
+    
+    el.shift();
+  })
+  return setReminderValues(reminderList)
+}
+
+function setReminderValues(arr) {
+  dictSheet.getRange(2,numColReminderDict,dictSheet.getLastRow()-1,2).setValues(arr);
 }
 
 function setCheck(msgData) {
-  Telegram.edit_msg(`${msgData.text}\n✅ Выполнено`, msgData.chatId, msgData.id, API);
+  Telegram.edit_msg(`✅ Выполнено\n${msgData.text}`, msgData.chatId, msgData.id, API);
 }
 
 
@@ -89,6 +78,16 @@ function chunkify(array, length) {
   return result
 }
 
+function getContacts(msgData) {
+  const arr = dictSheet.getRange(1,1,dictSheet.getLastRow(),dictSheet.getLastColumn()).getValues();
+  const userName = `@${msgData.user_name}`;
 
+  const finalArr = arr.map((el) => {
+    if (el[5] === userName) {
+      return `${el[0]}\n${el[4]}\n${el[5]}\n${el[6]}`
+    }
+  })
+  .filter(Boolean)
 
-
+  return finalArr
+}
