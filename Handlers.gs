@@ -1,7 +1,7 @@
 function defaultHandler(msgData,keyboard) {
   keyboard = (typeof keyboard !== 'undefined') ? keyboard : createKeyboard(msgData); 
   const msg = `Выбери тему запроса`
-  Telegram.send_key(msg, msgData.chatId, API, keyboard);
+  send_key(msg, msgData.chatId, API, keyboard);
 }
 
 function headButtonHandler(msgData) {
@@ -12,9 +12,9 @@ function headButtonHandler(msgData) {
   const teamLeadInfo = peopleArr.find((el) => el[0] === teamLead);
 
   if (teamLeadInfo == null) {
-    Telegram.send(`Контакты не найдены...\nСвяжись с поддержкой`,msgData.chatId,API);
+    send(`Контакты не найдены...\nСвяжись с поддержкой`,msgData.chatId,API);
   } else {
-    Telegram.send(`${teamLeadInfo[numColNameDict-1]}\n${teamLeadInfo[numColDepartmentDict-1]}\n${teamLeadInfo[numColMailDict-1]}\n${teamLeadInfo[numColLoginDict-1]}`,msgData.chatId,API);
+    send(`${teamLeadInfo[numColNameDict-1]}\n${teamLeadInfo[numColDepartmentDict-1]}\n${teamLeadInfo[numColMailDict-1]}\n${teamLeadInfo[numColLoginDict-1]}`,msgData.chatId,API);
   }
 }
 
@@ -43,24 +43,25 @@ function replyKeyboardHandler(msgData) {
       defaultHandler(msgData, keyboard = undefined);
       break;
     case `Инфо`:
-      defaultHandler(msgData,Keyboard_info);
+      defaultHandler(msgData,createInlineKeyboard(text='Штат')); //text='Штат' - список вопросов из любой из категорий: штат, ип, самозанятый
       break;
     case `Назад`:
       defaultHandler(msgData,Keyboard_menu);
       break;
     case `Мои контакты`:
-      getContacts(msgData).forEach((el) => Telegram.send(el,msgData.chatId,API));
+      getContacts(msgData).forEach((el) => send(el,msgData.chatId,API));
       break;
     case `Контакты руководителя`:
       headButtonHandler(msgData);
       break;
-    default: searchMessage(msgData.text, messagesArr = undefined).forEach(el => Telegram.send(el,msgData.chatId,API));
-           /* .forEach((el) => {
-              if (msgData.text !== `Задачи в 1 рабочий день`) {
-                Telegram.send(el,msgData.chatId,API);
-              } else {
-                Telegram.send_key(el,msgData.chatId,API,Keyboard_check);
-              }
-            });*/
+    default: searchMessage(msgData.text, messagesArr = undefined)
+      //.forEach(el => send(el,msgData.chatId,API));
+      .forEach((el) => {
+        if (msgData.text !== `Задачи в 1 рабочий день`) {
+          send(el,msgData.chatId,API);
+        } else {
+          send_key(el,msgData.chatId,API,Keyboard_check);
+        }
+      });
   }
 }
