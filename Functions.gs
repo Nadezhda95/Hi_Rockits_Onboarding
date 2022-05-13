@@ -17,34 +17,64 @@ function searchMessage(text, messagesArr) {
 
 
 function userAuth(msgData) {
-  const dictSheet_arr = dictSheet.getRange(1,numColLoginDict,dictSheet.getLastRow(),1).getValues().flat();
+  const dictSheetArr = dictSheet.getRange(1,numColLoginDict,dictSheet.getLastRow(),1).getValues().flat();
   const userName = `@${msgData.user_name}`;
-  const ind = dictSheet_arr.indexOf(userName);
-  if (ind > -1 && dictSheet_arr[ind][numColChatIDSideDict-1] === ``) dictSheet.getRange(ind+1,numColChatIDSideDict).setValue(msgData.chatId);
+  const ind = dictSheetArr.indexOf(userName);
+
+  //chatId привязывается к пользователю
+  if (ind > -1) sideDictSheet.getRange(ind+1,numColChatIDSideDict).setValue(msgData.chatId);
   
   return ind 
 }
 
-function sendReminder() {
-  const reminderList = dictSheet.getRange(2,numColMonthsDict,dictSheet.getLastRow()-1,3).getValues();
+
+function sendMonthlyReminder() {
+  const reminderList = sideDictSheet.getRange(1,1,sideDictSheet.getLastRow(),sideDictSheet.getLastColumn()).getValues();
+  
+  //[Шевчук Анастасия, 1.0, 1.0, 3.11157431E8, 6.0]
+
   reminderList.map((el) => {
-    //счетчик отправок < 3 && количество месяцев в компании от 1 до 3 && заполнен чат ид
-    if (el[1] <= 3 && el[0] >=1 && el[0] <= 3 && el[2] !== '') {
-      el[1] += 1;
-      send(`Проверь свои задачи на каждый месяц работы:\nМоя адаптация -> Задачи на каждый месяц работы`, el[2], API);
-    }
-    
-    el.shift();
+    //счетчик отправок < 3 && кол-во месяцев не равно кол-ву отправок && (кол-во месяцев от 1 до 3) && заполнен чат ид
+    if (el[2] <= 3 && el[1] === el[2] && (el[1] >=1 && el[1] <= 3) && el[3] !== '') {
+      searchMessage(`${el[1]} месяц`,messagesArr = undefined)
+        .forEach((element) => send_key(element, el[3], API, Keyboard_check));
+      el[2] += 1; //счетчик отправок
+    } 
   })
-  return setReminderValues(reminderList)
+  return setSideDictValues(reminderList, monthsColumn = `undefined`)
 }
 
-function setReminderValues(arr) {
-  sideDictSheet.getRange(2,numColReminderDict,dictSheet.getLastRow()-1,2).setValues(arr);
+function isLastCheck(msgData,userIndex,dictList) {
+  const msg = `Поздравляю тебя с окончанием испытательного срока!!!\n\nЗнаю, что было непросто,  но оно того стоит, ведь так?\nВпереди еще больше крутых задач, интересных проектов, новых вызовов и конечно же совместных мероприятий!\nУверен, что ты со всем справишься! Удачи!`
+
+  if (dictList[userIndex][numColChecksSideDict-1] == checksAmount) {
+    send(msg,msgData.chatId,API)
+    dictList[userIndex][numColChecksSideDict-1] += 1;
+  }
+
+  return setSideDictValues(dictList,monthsColumn = `undefined`)
 }
 
-function setCheck(msgData) {
-  edit_msg(`✅ Выполнено\n${msgData.text}`, msgData.chatId, msgData.id, API);
+
+function setSideDictValues(arr,monthsColumn) {
+  sideDictSheet.clear({ formatOnly: false, contentsOnly: true });
+  sideDictSheet.getRange(1,1,arr.length,arr[0].length).setValues(arr);
+
+  if (monthsColumn !==`undefined`) {
+    newArray = Array.from(monthsColumn, x => [x])
+    sideDictSheet.getRange(1,numColMonthsSideDict,newArray.length,newArray[0].length).setValues(newArray);
+  }
+  
+}
+
+function setCheck(msgData,userIndex) {
+  edit_msg(`✅ Выполнено\n\n${msgData.text}`, msgData.chatId, msgData.id, API);
+  const dictList = sideDictSheet.getRange(1,1,sideDictSheet.getLastRow(),sideDictSheet.getLastColumn()).getValues();
+
+  dictList[userIndex][numColChecksSideDict-1] += 1;
+
+  //Logger.log(dictList)
+  return isLastCheck(msgData,userIndex,dictList)
 }
 
 
@@ -126,16 +156,25 @@ function createInlineKeyboard(text) {
 
 
 function updateSideDictionary() {
-  const originalList = dictSheet.getRange(1,1,dictSheet.getLastRow(),1).getValues().flat();
+  const originalNamesList = dictSheet.getRange(1,1,dictSheet.getLastRow(),1).getValues().flat();
   const dictList = sideDictSheet.getRange(1,1,sideDictSheet.getLastRow(),sideDictSheet.getLastColumn()).getValues();
-  const tempDictList = sideDictSheet.getRange(1,1,sideDictSheet.getLastRow(),1).getValues().flat();
+  const dictNamesList = sideDictSheet.getRange(1,1,sideDictSheet.getLastRow(),1).getValues().flat();
+  const originalMonthsList = dictSheet.getRange(1,numColMonthsDict,dictSheet.getLastRow(),1).getValues().flat();
 
-  if (originalList.length != tempDictList.length) {
-    originalList.forEach((el,index) => {if (tempDictList.includes(el) == false) dictList.splice(index,0,[el,1,'']) })
-  }
+  originalNamesList.forEach((el,index) => {
+    if (dictNamesList.includes(el) == false) {
+      dictList.splice(index,0,[el,originalMonthsList[index],1,'','']) 
+    }
+  })
 
-  sideDictSheet.getRange(1,1,dictList.length,dictList[0].length).setValues(dictList);
+  dictNamesList.forEach((el,index) => {
+    if (originalNamesList.includes(el) == false) {
+      dictList.splice(index,1)
+    }
+  })
+
+  return setSideDictValues(dictList,originalMonthsList)
+
 }
-
 
 

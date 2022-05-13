@@ -7,10 +7,16 @@ const numColDepartmentDict = 3;
 const numColTeamDict = 4;
 const numColMailDict = 5;
 const numColLoginDict = 6;
+const numColPhoneDict = 7;
 const numColRegisterTypeDict = 8;
 const numColMonthsDict = 23;
-const numColReminderSideDict = 2;
-const numColChatIDSideDict = 3;
+
+const numColMonthsSideDict = 2;
+const numColReminderSideDict = 3;
+const numColChatIDSideDict = 4;
+const numColChecksSideDict = 5;
+
+const checksAmount = 16 //7 (в первый день) + 3*3 (на каждый месяц работы)
 
 const root_chatId = -643319661;
 
@@ -26,3 +32,4 @@ const root_chatId = -643319661;
       + настроить уведомления, если задачи просрочены
 
 */
+
