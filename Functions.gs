@@ -176,5 +176,3 @@ function updateSideDictionary() {
   return setSideDictValues(dictList,originalMonthsList)
 
 }
-
-
