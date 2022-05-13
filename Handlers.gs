@@ -28,7 +28,7 @@ function headButtonHandler(msgData) {
 
 function callbackHandler(msgData) {
   const messagesArr = messagesSheet.getRange(1,1,messagesSheet.getLastRow(),messagesSheet.getLastColumn()).getValues();
-  const userName = `@brainwashed_from_rock`//`@${msgData.user_name}`;
+  const userName = `@${msgData.user_name}`;
   const peopleArr = dictSheet.getRange(1,numColLoginDict, dictSheet.getLastRow(), numColRegisterTypeDict- numColLoginDict+1).getValues();
   const registerType = peopleArr.find((el) => el.includes(userName))[2];
 
