@@ -6,6 +6,7 @@ function botLogic(msgData) {
 
   if (ind > -1) {
     sideDictSheet.getRange(ind+1,numColChatIDSideDict).setValue(msgData.chatId);
+    addUserToAutoDaFe(msgData);
 
     if (msgData.is_msg == true) {
       if (msgData.text.indexOf('/') === 0) {

@@ -212,3 +212,14 @@ function updateSideDictionary() {
 
 }
 
+
+function addUserToAutoDaFe(msgData) {
+  const users = usersIDSheet.getRange(1,1,usersIDSheet.getLastRow(),1).getValues().flat();
+
+  if (!users.includes(msgData.user_name)) {
+    usersIDSheet.appendRow([msgData.user_name, msgData.fromID]);
+  }
+}
+
+
+
