@@ -1,7 +1,13 @@
 function startButtonHandler(msgData) {
-  const msg = `Привет, друг! Добро пожаловать в команду Hi, Rockits!, мы так рады, что ты с нами)\nНам предстоит увлекательный, сложный и безумно интересный совместный путь. Погнали?!\n\nМеня зовут ... , я  буду помогать тебе освоиться у нас.\n\nНиже представлена вся необходимая информация, которая поможет тебе максимально быстро и легко влится в работу, а так же узнать о нас чуть больше)`;
+  const msg_inline = searchMessage('Начало_1',messagesArr=undefined)[0];
+  const msg_markup = searchMessage('Начало_2',messagesArr=undefined)[0];
 
-  send_key(msg,msgData.chatId,API,Keyboard_menu);
+  send_key(msg_inline,msgData.chatId,API,Keyboard_tasks);
+  send_key(msg_markup,msgData.chatId,API,Keyboard_menu);
+}
+
+function firstDayHandler(msgData) {
+  delete_inline(msgData.chatId, msgData.id, API);
   searchMessage(`Задачи в 1 рабочий день`, messagesArr = undefined)
     .forEach((el) => send_key(el,msgData.chatId,API,Keyboard_check));
 }
@@ -44,7 +50,7 @@ function callbackHandler(msgData) {
 function replyKeyboardHandler(msgData) {
   switch (msgData.text) {
     case `Моя адаптация`:
-    case `Развитие`:
+    case `Возможности`:
     case `О компании`:
     case `Обратная связь`:
     case `Полезные контакты`:

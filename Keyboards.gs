@@ -2,7 +2,7 @@ const Keyboard_menu =
 {
   'keyboard': [
     //['Моя адаптация'],
-    ['Развитие', 'О компании', 'Инфо'],
+    ['Возможности', 'О компании', 'Инфо'],
     ['Обратная связь', 'Полезные контакты', 'Мои контакты']
   ],
   'resize_keyboard': true
@@ -15,6 +15,15 @@ const Keyboard_check =
   ],
   'resize_keyboard': true
 }; 
+
+const Keyboard_tasks =
+{
+  'inline_keyboard': [
+    [{'text': 'Список задач', 'callback_data': 'firstDayTasks'}]
+  ],
+  'resize_keyboard': true
+}; 
+
 
 
 

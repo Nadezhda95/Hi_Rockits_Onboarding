@@ -20,15 +20,12 @@ function userAuth(msgData) {
   const dictSheetArr = dictSheet.getRange(1,numColLoginDict,dictSheet.getLastRow(),1).getValues().flat();
   const userName = `@${msgData.user_name}`;
   const ind = dictSheetArr.indexOf(userName);
-
-  //chatId привязывается к пользователю
-  if (ind > -1) sideDictSheet.getRange(ind+1,numColChatIDSideDict).setValue(msgData.chatId);
   
   return ind 
 }
 
 
-function sendMonthlyReminder() {
+function sendMonthlyReminder_() {
   const reminderList = sideDictSheet.getRange(1,1,sideDictSheet.getLastRow(),sideDictSheet.getLastColumn()).getValues();
   
   //[Шевчук Анастасия, 1.0, 1.0, 3.11157431E8, 6.0]
@@ -44,8 +41,47 @@ function sendMonthlyReminder() {
   return setSideDictValues(reminderList, monthsColumn = `undefined`)
 }
 
+function sendMonthlyReminder() {
+  const reminderList = sideDictSheet.getRange(1,1,sideDictSheet.getLastRow(),sideDictSheet.getLastColumn()).getValues();
+  const list = dictSheet.getRange(1,1,dictSheet.getLastRow(),dictSheet.getLastColumn()).getValues();
+
+  reminderList.map((el) => {
+    //счетчик отправок < 3 && кол-во месяцев не равно кол-ву отправок && (кол-во месяцев от 1 до 3) && заполнен чат ид
+    if (el[2] <= 3 && el[1] === el[2] && (el[1] >=1 && el[1] <= 3) && el[3] !== '') {
+      searchMessage(`${el[1]} месяц`,messagesArr = undefined)
+        .forEach((element) => send_key(element, el[3], API, Keyboard_check));
+      el[2] += 1; //счетчик отправок
+    }
+  })
+
+  const curDate = new Date();
+  reminderList.filter((el,ind) => {
+    if (el[numColReminderSideDict-1] == `3`) {
+      //Logger.log(weeksBetween(list[ind][numColEmploymentDateDict-1], curDate))
+      const curWeeksAmount = weeksBetween(list[ind][numColEmploymentDateDict-1], curDate);
+      if (curWeeksAmount == weeksInTemp-2) {
+        searchMessage(`11 недель`,messagesArr = undefined)
+          .forEach((element) => send_key(element, el[3], API, Keyboard_check));
+      } else if (curWeeksAmount == weeksInTemp-1) {
+        searchMessage(`12 недель`,messagesArr = undefined)
+          .forEach((element) => send_key(element, el[3], API, Keyboard_check));
+      } else if (curWeeksAmount == weeksInTemp) {
+        searchMessage(`Финал`,messagesArr = undefined)
+          .forEach((element) => send(element, el[3], API));
+      }
+    }
+  })
+
+  return setSideDictValues(reminderList, monthsColumn = `undefined`)
+
+}
+
+function weeksBetween(beginDate, endDate) {
+  return Math.round((endDate - beginDate) / (7 * 24 * 60 * 60 * 1000))+1;
+}
+
 function isLastCheck(msgData,userIndex,dictList) {
-  const msg = `Поздравляю тебя с окончанием испытательного срока!!!\n\nЗнаю, что было непросто,  но оно того стоит, ведь так?\nВпереди еще больше крутых задач, интересных проектов, новых вызовов и конечно же совместных мероприятий!\nУверен, что ты со всем справишься! Удачи!`
+  const msg = searchMessage('Финал', undefined);
 
   if (dictList[userIndex][numColChecksSideDict-1] == checksAmount) {
     send(msg,msgData.chatId,API)
@@ -64,7 +100,6 @@ function setSideDictValues(arr,monthsColumn) {
     newArray = Array.from(monthsColumn, x => [x])
     sideDictSheet.getRange(1,numColMonthsSideDict,newArray.length,newArray[0].length).setValues(newArray);
   }
-  
 }
 
 function setCheck(msgData,userIndex) {
@@ -74,7 +109,7 @@ function setCheck(msgData,userIndex) {
   dictList[userIndex][numColChecksSideDict-1] += 1;
 
   //Logger.log(dictList)
-  return isLastCheck(msgData,userIndex,dictList)
+  //return isLastCheck(msgData,userIndex,dictList)
 }
 
 
@@ -176,5 +211,4 @@ function updateSideDictionary() {
   return setSideDictValues(dictList,originalMonthsList)
 
 }
-
 

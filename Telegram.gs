@@ -54,14 +54,14 @@ function send(msg, chat_id, api) {
  * @param  {string} api Bot's API
  */
 function edit_msg(msg, chat_id, msg_id, api) {
-  var payload = {
+  const payload = {
   'method': 'editMessageText',
   'chat_id': String(chat_id),
   'message_id': String(msg_id),
   'text': msg,
   'parse_mode': 'HTML'
   }
-  var data = {
+  const data = {
     'method': 'post',
     'payload': payload
   }
@@ -77,12 +77,12 @@ function edit_msg(msg, chat_id, msg_id, api) {
  * 
  */
 function send_doc(doc, chat_id, api) {
-  var payload = {
+  const payload = {
   'method': 'sendDocument',
   'chat_id': String(chat_id),
   'document': doc
   }
-  var data = {
+  const data = {
     'method': 'post',
     'payload': payload
   }
@@ -139,14 +139,14 @@ function send_photo(photo, chat_id, api) {
  * @param  {string} api Bot's API
  */
 function send_reply(msg, chat_id, msg_id, api) {
-  var payload = {
+  const payload = {
   'method': 'sendMessage',
   'chat_id': String(chat_id),
   'text': msg,
   'reply_to_message_id': msg_id,
   'parse_mode': 'HTML'
   }
-  var data = {
+  const data = {
     'method': 'post',
     'payload': payload
   }
@@ -161,13 +161,13 @@ function send_reply(msg, chat_id, msg_id, api) {
  * @param  {string} api Bot's API
  */
 function delete_msg(chat_id, msg_id, api) {
-  var payload = {
+  const payload = {
   'method': 'deleteMessage',
   'chat_id': String(chat_id),
   'message_id': String(msg_id),
   'parse_mode': 'HTML'
   }
-  var data = {
+  const data = {
     'method': 'post',
     'payload': payload
   }
@@ -185,14 +185,14 @@ function delete_msg(chat_id, msg_id, api) {
  */
 function send_key(msg, chat_id, api, keyboard)
 {
-  var payload = {
+  const payload = {
     'method': 'sendMessage',
     'chat_id': String(chat_id),
     'text': msg,
     'parse_mode': 'HTML',
-    reply_markup : JSON.stringify(keyboard)
+    'reply_markup' : JSON.stringify(keyboard)
   }
-  var data = {
+  const data = {
     'method': 'post',
     'payload': payload
   }
@@ -208,14 +208,14 @@ function send_key(msg, chat_id, api, keyboard)
  * 
  */
 function send_removeKeyboard(msg, chat_id, api) {
-   var payload = {
+   const payload = {
     'method': 'sendMessage',
     'chat_id': String(chat_id),
     'text': msg,
     'parse_mode': 'HTML',
     'reply_markup' : JSON.stringify({'remove_keyboard': true})
   }
-  var data = {
+  const data = {
     'method': 'post',
     'payload': payload
   }
@@ -231,12 +231,12 @@ function send_removeKeyboard(msg, chat_id, api) {
  * 
  */
 function send_animation(file_id, chat_id, api) {
-  var payload = {
+  const payload = {
   'method': 'sendAnimation',
   'chat_id': String(chat_id),
   'animation': String(file_id)
   }
-  var data = {
+  const data = {
     'method': 'post',
     'payload': payload
   }
@@ -252,12 +252,12 @@ function send_animation(file_id, chat_id, api) {
  * 
  */
 function delete_inline(chat_id, msg_id, api) {
-  var payload = {
+  const payload = {
     'method': 'editMessageReplyMarkup',
     'chat_id': String(chat_id),
     'message_id': String(msg_id)
   }
-  var Data = {
+  const Data = {
     'method': 'post',
     'payload': payload
   }
@@ -268,20 +268,20 @@ function delete_inline(chat_id, msg_id, api) {
  * The function edit an inline-keyboard
  * 
  * @param  {number} chat_id
- * @param  {number} msg_id Message's id corresponding to the keyboard
- * @param  {string} api Bot's API
- * @param  {object} keyboard  The keyboard to be sent instead of current one
+ * @param  {number} msg_id Message id corresponding to the keyboard
+ * @param  {string} api Bot API
+ * @param  {object} keyboard The keyboard to be sent instead of current one
  * 
  */
 function edit_inline(chat_id, msg_id, api, keyboard) {
-  var payload = {
+  const payload = {
     'method': 'editMessageReplyMarkup',
     'chat_id': String(chat_id),
     'message_id': String(msg_id),
     'reply_markup': JSON.stringify(keyboard)
   }
   
-  var Data = {
+  const Data = {
     'method': 'post',
     'payload': payload
   }
@@ -296,12 +296,12 @@ function edit_inline(chat_id, msg_id, api, keyboard) {
  * 
  */
 function send_action(chat_id,api) { //переименовать
-  var payload = {
+  const payload = {
     'method': 'sendChatAction',
     'chat_id': String(chat_id),
     'action': 'typing'
   }
-  var Data = {
+  const Data = {
     'method': 'post',
     'payload': payload
   }
