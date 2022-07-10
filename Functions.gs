@@ -1,4 +1,5 @@
 function searchMessage(text, messagesArr) {
+  breakpoint(loggerSheet,`searchMessage`, `start`)
   messagesArr = (typeof messagesArr !== 'undefined') ? messagesArr : messagesSheet.getRange(1,1,messagesSheet.getLastRow(),messagesSheet.getLastColumn()).getValues();
 
   const finalArr = messagesArr.map((el) => {
@@ -12,6 +13,7 @@ function searchMessage(text, messagesArr) {
   })
   .filter(Boolean)
 
+  breakpoint(loggerSheet,`searchMessage`, `finalArr = ${finalArr}`)
   return finalArr
 }
 
@@ -24,23 +26,7 @@ function userAuth(msgData) {
   return ind 
 }
 
-
-function sendMonthlyReminder_() {
-  const reminderList = sideDictSheet.getRange(1,1,sideDictSheet.getLastRow(),sideDictSheet.getLastColumn()).getValues();
-  
-  //[Шевчук Анастасия, 1.0, 1.0, 3.11157431E8, 6.0]
-
-  reminderList.map((el) => {
-    //счетчик отправок < 3 && кол-во месяцев не равно кол-ву отправок && (кол-во месяцев от 1 до 3) && заполнен чат ид
-    if (el[2] <= 3 && el[1] === el[2] && (el[1] >=1 && el[1] <= 3) && el[3] !== '') {
-      searchMessage(`${el[1]} месяц`,messagesArr = undefined)
-        .forEach((element) => send_key(element, el[3], API, Keyboard_check));
-      el[2] += 1; //счетчик отправок
-    } 
-  })
-  return setSideDictValues(reminderList, monthsColumn = `undefined`)
-}
-
+/*
 function sendMonthlyReminder() {
   const reminderList = sideDictSheet.getRange(1,1,sideDictSheet.getLastRow(),sideDictSheet.getLastColumn()).getValues();
   const list = dictSheet.getRange(1,1,dictSheet.getLastRow(),dictSheet.getLastColumn()).getValues();
@@ -76,23 +62,55 @@ function sendMonthlyReminder() {
 
 }
 
+*/
+
+function sendMonthlyReminder() {
+  const sheet = SpreadsheetApp.getActive().getSheetByName("authDataSheet(view)");
+  const reminderList = sheet.getRange(1,1,sheet.getLastRow(),sheet.getLastColumn()).getValues();
+  const curDate = sheet.getRange('F1').getValue();
+
+  reminderList.map((el,ind) => {
+    //заполнен чат ид && дата отправки = Today()
+    if (el[3] !== '' && el[5] == true) {
+      if (el[2] == `3`) {
+        const curWeeksAmount = weeksBetween(reminderList[ind][4], curDate);
+        if (curWeeksAmount == weeksInTemp-2) {
+          searchMessage(`11 недель`)
+            .forEach((element) => {
+              send_key(element, el[3], API, Keyboard_check)
+              send_key(`${element}\n\n${el[3]}`, 311157431, API, Keyboard_check)
+            });
+        } else if (curWeeksAmount == weeksInTemp-1) {
+          searchMessage(`12 недель`)
+            .forEach((element) => {
+              send_key(element, el[3], API, Keyboard_check)
+              send_key(`${element}\n\n${el[3]}`, 311157431, API, Keyboard_check)
+            });
+        } else if (curWeeksAmount == weeksInTemp) {
+          searchMessage(`Финал`)
+            .forEach((element) => {
+              send(element, el[3], API)
+              send_key(`${element}\n\n${el[3]}`, 311157431, API, Keyboard_check)
+            });
+        }
+      } else {
+        searchMessage(`${el[2]} месяц`)
+          .forEach((element) => {
+            send_key(element, el[3], API, Keyboard_check)
+            send_key(`${element}\n\n${el[3]}`, 311157431, API, Keyboard_check)
+          });
+      } 
+    }
+  })
+}
+
+
 function weeksBetween(beginDate, endDate) {
-  return Math.round((endDate - beginDate) / (7 * 24 * 60 * 60 * 1000))+1;
-}
-
-function isLastCheck(msgData,userIndex,dictList) {
-  const msg = searchMessage('Финал', undefined);
-
-  if (dictList[userIndex][numColChecksSideDict-1] == checksAmount) {
-    send(msg,msgData.chatId,API)
-    dictList[userIndex][numColChecksSideDict-1] += 1;
-  }
-
-  return setSideDictValues(dictList,monthsColumn = `undefined`)
+  return Math.floor((endDate - beginDate) / (7 * 24 * 60 * 60 * 1000));
 }
 
 
-function setSideDictValues(arr,monthsColumn) {
+/*function setSideDictValues(arr,monthsColumn) {
   sideDictSheet.clear({ formatOnly: false, contentsOnly: true });
   sideDictSheet.getRange(1,1,arr.length,arr[0].length).setValues(arr);
 
@@ -100,16 +118,11 @@ function setSideDictValues(arr,monthsColumn) {
     newArray = Array.from(monthsColumn, x => [x])
     sideDictSheet.getRange(1,numColMonthsSideDict,newArray.length,newArray[0].length).setValues(newArray);
   }
-}
+}*/
 
-function setCheck(msgData,userIndex) {
+
+function setCheck(msgData) {
   edit_msg(`✅ Выполнено\n\n${msgData.text}`, msgData.chatId, msgData.id, API);
-  const dictList = sideDictSheet.getRange(1,1,sideDictSheet.getLastRow(),sideDictSheet.getLastColumn()).getValues();
-
-  dictList[userIndex][numColChecksSideDict-1] += 1;
-
-  //Logger.log(dictList)
-  //return isLastCheck(msgData,userIndex,dictList)
 }
 
 
@@ -189,7 +202,7 @@ function createInlineKeyboard(text) {
   
 }
 
-
+/*
 function updateSideDictionary() {
   const originalNamesList = dictSheet.getRange(1,1,dictSheet.getLastRow(),1).getValues().flat();
   const dictList = sideDictSheet.getRange(1,1,sideDictSheet.getLastRow(),sideDictSheet.getLastColumn()).getValues();
@@ -212,6 +225,7 @@ function updateSideDictionary() {
 
 }
 
+*/
 
 function addUserToAutoDaFe(msgData) {
   const users = usersIDSheet.getRange(1,1,usersIDSheet.getLastRow(),1).getValues().flat();
@@ -220,6 +234,29 @@ function addUserToAutoDaFe(msgData) {
     usersIDSheet.appendRow([msgData.user_name, msgData.fromID]);
   }
 }
+
+function breakpoint(...args) {
+  let argsArr = args;
+  const sheet = argsArr.shift();
+  sheet.appendRow(argsArr)
+
+}
+
+
+function saveChatId(msgData) {
+  const sheet = SpreadsheetApp.getActive().getSheetByName("authDataSheet");
+  const users = sheet.getRange(1,1,sheet.getLastRow()).getValues().flat();
+  const userName = "@"+msgData.user_name;
+  const index = users.indexOf(userName);
+
+  if (index > -1) {
+    sheet.getRange(index+1,2).setValue(msgData.chatId)
+  } else {
+    sheet.appendRow([userName, msgData.chatId])
+  }
+}
+
+
 
 
 

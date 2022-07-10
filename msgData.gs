@@ -1,5 +1,6 @@
 function doPost(e) {
   const update = JSON.parse(e.postData.contents);
+  breakpoint(loggerSheet,update)
   let msgData = {}
   if (update.hasOwnProperty('message')) {
     msgData = {
@@ -21,7 +22,7 @@ function doPost(e) {
       chatId    : update.callback_query.message.chat.id,
       user_name : update.callback_query.from.username,
       firstName : update.callback_query.from.first_name,
-      fromID     : update.message.from.id,
+      fromID    : update.callback_query.message.from.id,
       text      : update.callback_query.message.text,
       command   : update.callback_query.message.text.split('\n')[0],
       date      : update.callback_query.message.date/86400+25569.125,

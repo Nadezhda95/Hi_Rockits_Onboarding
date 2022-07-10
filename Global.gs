@@ -1,6 +1,8 @@
-const messagesSheet = SpreadsheetApp.getActive().getSheetByName("Messages");
-const sideDictSheet = SpreadsheetApp.getActive().getSheetByName('Справочник');
-const dictSheet = SpreadsheetApp.getActive().getSheetByName("ЕРС");
+const messagesSheet = SpreadsheetApp.getActive().getSheetByName('Messages');
+//const sideDictSheet = SpreadsheetApp.getActive().getSheetByName('Справочник');
+const dictSheet = SpreadsheetApp.getActive().getSheetByName('ЕРС');
+const journalSheet = SpreadsheetApp.getActive().getSheetByName('Журнал');
+const loggerSheet = SpreadsheetApp.getActive().getSheetByName('Logger');
 
 const autoDaFe = SpreadsheetApp.openById('172ToB8sR12OYolvrWJKn3xfNejcMu5wDLAOrv7cxQys');
 const usersIDSheet = autoDaFe.getSheetByName('Users ID');
